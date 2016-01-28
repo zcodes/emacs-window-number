@@ -109,26 +109,6 @@
 (defgroup window-number nil
   "Window number group")
 
-(defcustom window-number-active-foreground "black"
-  "The foreground color when window number active."
-  :type 'string
-  :group 'window-number)
-
-(defcustom window-number-active-background "gold"
-  "The background color when window number active."
-  :type 'string
-  :group 'window-number)
-
-(defcustom window-number-inactive-foreground "white"
-  "The foreground color when window number inactive."
-  :type 'string
-  :group 'window-number)
-
-(defcustom window-number-inactive-background "darkred"
-  "The background color when window number inactive."
-  :type 'string
-  :group 'window-number)
-
 (defface window-number-face nil
   "The face used for the window number in the mode-line.")
 
@@ -154,7 +134,6 @@ Prompt user input window number if have more windows."
   (interactive)
   (if (< (length (window-list)) 3)
       (call-interactively 'other-window)
-    (window-number-set-active-color)
     (unwind-protect
         (let* ((window-numbers (number-sequence 1 (length (window-list))))
                (window-buffer-names (mapcar (lambda (x) (buffer-name (window-buffer x))) (window-number-list)))
@@ -166,12 +145,7 @@ Prompt user input window number if have more windows."
           (window-number-select
            (if (string= select-index-string "")
                next-window-index
-             (string-to-int select-index-string))))
-      ;; Reset to inactive color if interactive is intercept by Ctrl+g
-      (window-number-set-inactive-color)
-      ))
-  ;; Always reset to inactive color at end.
-  (window-number-set-inactive-color))
+             (string-to-int select-index-string)))))))
 
 (defun window-number-select (number)
   "Selects the nth window."
@@ -182,16 +156,6 @@ Prompt user input window number if have more windows."
                             (minibuffer-window-active-p window)))
             (select-window window)
           (error "No such window.")))))
-
-(defun window-number-set-inactive-color ()
-  (set-face-foreground 'window-number-face window-number-inactive-foreground)
-  (set-face-background 'window-number-face window-number-inactive-background)
-  (force-mode-line-update))
-
-(defun window-number-set-active-color ()
-  (set-face-foreground 'window-number-face window-number-active-foreground)
-  (set-face-background 'window-number-face window-number-active-background)
-  (force-mode-line-update))
 
 (defun window-number ()
   "Returns the the number of the current window."
@@ -239,8 +203,7 @@ according to numbers with the C-x C-j prefix.  Another mode,
 `window-number-meta-mode' enables the use of the M- prefix."
       :global t
       :init-value nil
-      :lighter " -?-"
-      (window-number-set-inactive-color))
+      :lighter " -?-")
 
   (define-minor-mode window-number-mode
     "A global minor mode that enables selection of windows
@@ -248,9 +211,7 @@ according to numbers with the C-x C-j prefix.  Another mode,
 `window-number-meta-mode' enables the use of the M- prefix."
     :global t
     :init-value nil
-    :lighter (:eval (window-number-string))
-    (window-number-set-inactive-color)
-    ))
+    :lighter (:eval (window-number-string))))
 
 (define-minor-mode window-number-meta-mode
   "A global minor mode that enables use of the M- prefix to
